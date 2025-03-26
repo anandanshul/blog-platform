@@ -14,19 +14,13 @@ mongoose.connect('mongodb://localhost:27017/blog', {
 const Post = require('./models/Post');
 
 // Create post
-app.get('/posts', async (req, res) => {
+app.post('/posts', async (req, res) => {
     try {
-      const posts = await Post.find().sort({ createdAt: -1 }).lean();
-      if (!posts || posts.length === 0) {
-        return res.status(200).json([]); // Return empty array if no posts
-      }
-      res.json(posts);
-    } catch (err) {
-      console.error('Database error:', err);
-      res.status(500).json({ 
-        error: 'Server error',
-        details: process.env.NODE_ENV === 'development' ? err.message : undefined
-      });
+      const post = new Post(req.body);
+      await post.save();
+      res.status(201).send(post);
+    } catch (error) {
+      res.status(400).send(error);
     }
   });
 
